@@ -1,0 +1,24 @@
+version: '3'
+services:
+    mariadb:
+        image: mariadb:10.5.8
+        volumes:
+            - mariadb-volume:/var/lib/mysql
+        environment:
+            TZ: "America/Chicago"
+            MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+            MYSQL_ROOT_PASSWORD: "AngeloOsradar"
+            MYSQL_USER: 'osradar'
+            MYSQL_PASSWORD: 'osradarpss'
+            MYSQL_DATABASE: 'erp'
+        ports:
+            - 3306:3306
+    adminer:
+        image: adminer:4.7.8
+        environment: 
+            ADMINER_DEFAULT_SERVER: mariadb
+        restart: always
+        ports:
+            - 8080:8080
+volumes:
+    mariadb-volume:
