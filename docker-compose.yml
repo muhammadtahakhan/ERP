@@ -1,7 +1,20 @@
 version: '3'
 services:
+  #Nginx Service
+    nginx:
+        image: nginx:alpine
+        container_name: erp_nginx
+        restart: unless-stopped
+        ports:
+        - 8080:80
+        volumes:
+        - ./backend:/var/www
+        - ./docker/nginx/conf.d/:/etc/nginx/conf.d
+        networks:
+        - erp-network
     mariadb:
         image: mariadb:10.5.8
+        container_name: erp_mariadb
         volumes:
             - mariadb-volume:/var/lib/mysql
         environment:
@@ -11,14 +24,28 @@ services:
             MYSQL_USER: 'osradar'
             MYSQL_PASSWORD: 'osradarpss'
             MYSQL_DATABASE: 'erp'
+        networks:
+            - erp-network
         ports:
             - 3306:3306
     adminer:
         image: adminer:4.7.8
+        container_name: erp_adminer
         environment: 
             ADMINER_DEFAULT_SERVER: mariadb
         restart: always
+        networks:
+            - erp-network
         ports:
             - 8080:8080
+    redis:
+        image: redis
+        volumes:
+            ## keep redis data on localhost so we don't lose them ##
+            - ./docker-volumes-data/redis:/data
+#Docker Networks
+networks:
+    erp-network:
+      driver: bridge
 volumes:
     mariadb-volume:
