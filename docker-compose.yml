@@ -1,0 +1,54 @@
+version: '3'
+services:
+    php-fpm:
+        image: php:7.2-fpm-alpine
+        container_name: php-fpm
+        volumes:
+          - ./test:/var/www/html
+        #   - ./www.conf:/usr/local/etc/php-fpm.d/www.conf
+    nginx:
+        image: nginx:stable-alpine
+        container_name: nginx
+        ports:
+            - 8080:80
+        volumes:
+            - ./test:/usr/share/nginx/html
+            # - ./nginx.conf:/etc/nginx/conf.d
+    mariadb:
+        image: mariadb:10.5.8
+        container_name: erp_mariadb
+        volumes:
+            - mariadb-volume:/var/lib/mysql
+        environment:
+            TZ: "America/Chicago"
+            MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+            MYSQL_ROOT_PASSWORD: "AngeloOsradar"
+            MYSQL_USER: 'osradar'
+            MYSQL_PASSWORD: 'osradarpss'
+            MYSQL_DATABASE: 'erp'
+        networks:
+            - erp-network
+        ports:
+            - 3306:3306
+    adminer:
+        image: adminer:4.7.8
+        container_name: erp_adminer
+        environment: 
+            ADMINER_DEFAULT_SERVER: mariadb
+        restart: always
+        networks:
+            - erp-network
+        ports:
+            - 9090:8080
+    redis:
+        image: redis
+        volumes:
+            ## keep redis data on localhost so we don't lose them ##
+            - redis-colume:/data
+#Docker Networks
+networks:
+    erp-network:
+      driver: bridge
+volumes:
+    mariadb-volume:
+    redis-colume:
